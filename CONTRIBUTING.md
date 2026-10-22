@@ -47,7 +47,8 @@ Releases are built and signed by the `Release` workflow with the
   `scripts/create-signing-identity.sh`
 - `SIGNING_CERTIFICATE_PASSWORD`: its password
 - `HOMEBREW_TAP_TOKEN` (optional): a fine-grained token with write access to
-  the contents of `ari92p/homebrew-tap`, used to update the cask
+  the contents of `ari92p/homebrew-tap`, used to update the cask. Run the
+  `Release` workflow manually to check the token without publishing anything.
 
 Always sign releases with the same certificate. A new certificate makes macOS
 ask every user to grant the Accessibility permission again.
