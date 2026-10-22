@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
   private var refreshTimer: Timer?
   private var observers: [NSObjectProtocol] = []
   private var accessibilityTrusted = false
+  private var ddcConnected = false
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)
@@ -73,7 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
       )
     }
     statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    configureStaticStatusIcon(description: "DisplayVolumeKeys")
+    configureStatusIcon(description: "DisplayVolumeKeys")
 
     let version =
       Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
@@ -155,6 +156,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         self.settings.recordRuntime(status: "checking")
         self.updateStatusTooltip(localized("status.checking"))
       case .connected:
+        self.ddcConnected = true
         self.settings.recordRuntime(status: "connected")
         if self.accessibilityTrusted {
           self.updateStatusTooltip(localized("status.active"))
@@ -162,9 +164,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
           self.updateStatusTooltip(localized("status.accessibilityRequired"))
         }
       case .unavailable(let reason):
+        self.ddcConnected = false
         self.settings.recordRuntime(status: "unavailable: \(reason.diagnosticCode)")
         self.updateStatusTooltip(self.localizedDescription(for: reason))
       }
+      self.updateStatusIconState()
     }
   }
 
@@ -216,15 +220,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     } else {
       mediaKeyHandler.stop()
     }
+    updateStatusIconState()
   }
 
-  private func configureStaticStatusIcon(description: String) {
+  private func configureStatusIcon(description: String) {
     guard let button = statusItem?.button else { return }
-    button.image = nil
-    button.title = "DDC"
-    button.font = .systemFont(ofSize: NSFont.systemFontSize(for: .small), weight: .semibold)
+    button.image = StatusIcon.make(accessibilityDescription: description)
     button.toolTip = description
     button.setAccessibilityLabel(description)
+    updateStatusIconState()
+  }
+
+  /// Dims the icon while the volume keys are left to macOS.
+  private func updateStatusIconState() {
+    statusItem?.button?.appearsDisabled = !(ddcConnected && accessibilityTrusted)
   }
 
   private func updateStatusTooltip(_ description: String) {
@@ -303,9 +312,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
       \(localized("diagnostics.accessibilityTrusted")) \(AXIsProcessTrusted())
       \(localized("diagnostics.eventTapRunning")) \(mediaKeyHandler.isRunning)
       m1ddc: \(settings.m1ddcPath)
-      \(localized("diagnostics.launchAtLogin")) \(String(describing: SMAppService.mainApp.status))
+      \(localized("diagnostics.launchAtLogin")) \(launchAtLoginDiagnostic())
       """
     return report
+  }
+
+  private func launchAtLoginDiagnostic() -> String {
+    switch SMAppService.mainApp.status {
+    case .enabled: "enabled"
+    case .requiresApproval: "requires approval"
+    case .notRegistered: "not registered"
+    case .notFound: "not found"
+    @unknown default: "unknown"
+    }
   }
 
   @objc private func showAbout() {

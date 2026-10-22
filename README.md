@@ -18,6 +18,11 @@ the same channel the monitor's own menu uses.
 It does only this one job, needs no configuration and runs entirely on your
 Mac.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/menu-dark.png">
+  <img alt="The DisplayVolumeKeys menu in the macOS menu bar" src="assets/menu-light.png" width="420">
+</picture>
+
 ## Installation with Homebrew
 
 ```sh
@@ -31,8 +36,10 @@ DisplayVolumeKeys uses to talk to the display. Then:
 2. Allow DisplayVolumeKeys under **System Settings → Privacy & Security →
    Accessibility** when macOS asks. This lets it receive the volume keys.
 
-`DDC` now appears in the menu bar. DisplayVolumeKeys starts automatically at
-login; turn this off with **Launch at Login** in its menu.
+A monitor icon now appears in the menu bar. It is dimmed while the app leaves
+the volume keys to macOS, for example when no DDC display is connected.
+DisplayVolumeKeys starts automatically at login; turn this off with **Launch at
+Login** in its menu.
 
 Update with `brew upgrade --cask display-volume-keys`. The Accessibility
 permission stays in place across updates.
@@ -102,6 +109,11 @@ Terminal. If it prints a number, DisplayVolumeKeys will work with it.
 
 **About DisplayVolumeKeys** in the menu bar shows a diagnostic report you can
 copy into an issue.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/about-dark.png">
+  <img alt="The About window with the diagnostic report" src="assets/about-light.png" width="356">
+</picture>
 
 ## How it compares
 

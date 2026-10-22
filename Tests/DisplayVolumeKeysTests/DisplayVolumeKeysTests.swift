@@ -19,6 +19,14 @@ final class M1DDCOutputParserTests: XCTestCase {
     XCTAssertTrue(M1DDCOutputParser.displays(from: "No external display found").isEmpty)
   }
 
+  func testNamesUnnamedDisplaysByIndex() {
+    let displays = M1DDCOutputParser.displays(
+      from: "[1] (null) (37D8832A-2D66-02CA-B9F7-8F30A301B230)"
+    )
+
+    XCTAssertEqual(displays.first?.menuTitle, "Display 1")
+  }
+
   func testParsesIntegerFromCommandOutput() {
     XCTAssertEqual(M1DDCOutputParser.integer(from: "Writing 17\n"), 17)
   }

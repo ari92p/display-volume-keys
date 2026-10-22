@@ -13,8 +13,9 @@ public struct DisplayInfo: Equatable, Sendable {
 
   public var selector: String { uuid }
 
+  /// m1ddc prints "(null)" for displays that report no name.
   public var menuTitle: String {
-    name.isEmpty || name == "Unknown" ? "Display \(index)" : name
+    name.isEmpty || name == "Unknown" || name == "(null)" ? "Display \(index)" : name
   }
 }
 

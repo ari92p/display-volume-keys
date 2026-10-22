@@ -35,6 +35,10 @@ private func verifyParsing() {
   expect(
     M1DDCOutputParser.displays(from: "No external display found").isEmpty,
     "malformed output fails closed")
+  expect(
+    M1DDCOutputParser.displays(from: "[1] (null) (37D8832A-2D66-02CA-B9F7-8F30A301B230)")
+      .first?.menuTitle == "Display 1",
+    "unnamed displays are named by index")
   expect(M1DDCOutputParser.integer(from: "Writing 17\n") == 17, "DDC value is parsed")
 }
 
