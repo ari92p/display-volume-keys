@@ -5,3 +5,4 @@ dist/
 *.swp
 *.xcuserstate
 xcuserdata/
+*.p12

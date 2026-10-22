@@ -3,8 +3,8 @@
 set -euo pipefail
 
 readonly ROOT="${0:A:h}"
-readonly PRODUCT="DDCVolumeKeys"
-readonly BUNDLE_ID="de.mlemors.DDCVolumeKeys"
+readonly PRODUCT="DisplayVolumeKeys"
+readonly BUNDLE_ID="io.github.ari92p.DisplayVolumeKeys"
 readonly SOURCE_APP="$ROOT/dist/$PRODUCT.app"
 readonly TARGET_APP="/Applications/$PRODUCT.app"
 
@@ -35,7 +35,7 @@ if [[ ! -w /Applications ]]; then
   /usr/bin/sudo -v
   privilege=(/usr/bin/sudo)
 fi
-staging_dir="$("${privilege[@]}" /usr/bin/mktemp -d /Applications/.DDCVolumeKeys-update.XXXXXX)"
+staging_dir="$("${privilege[@]}" /usr/bin/mktemp -d /Applications/.DisplayVolumeKeys-update.XXXXXX)"
 "${privilege[@]}" /bin/chmod 755 "$staging_dir"
 "${privilege[@]}" /usr/bin/ditto "$SOURCE_APP" "$staging_dir/$PRODUCT.app"
 /usr/bin/codesign --verify --strict "$staging_dir/$PRODUCT.app"

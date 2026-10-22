@@ -1,4 +1,4 @@
-import DDCVolumeKeysCore
+import DisplayVolumeKeysCore
 import Darwin
 import Foundation
 
@@ -51,7 +51,7 @@ private func verifyMediaKeys() {
 }
 
 private func verifySettings() {
-  let suite = "DDCVolumeKeysVerification.\(UUID().uuidString)"
+  let suite = "DisplayVolumeKeysVerification.\(UUID().uuidString)"
   let defaults = UserDefaults(suiteName: suite)!
   defaults.removePersistentDomain(forName: suite)
   defer { defaults.removePersistentDomain(forName: suite) }
@@ -65,6 +65,11 @@ private func verifySettings() {
   expect(settings.runtimeDisplayCount == 1, "runtime display count is persisted")
   settings.recordRuntime(displays: [DisplayInfo(index: 1, name: "Dell", uuid: "stable-id")])
   expect(defaults.object(forKey: "RuntimeDisplays") == nil, "display identifiers are not persisted")
+  expect(!settings.launchAtLoginConfigured, "launch at login starts unconfigured")
+  settings.recordLaunchAtLoginConfigured()
+  expect(
+    SettingsStore(defaults: defaults).launchAtLoginConfigured,
+    "launch at login is configured only once")
 }
 
 private func verifyCommandRunner() {
@@ -100,7 +105,7 @@ private final class FakeRunner: CommandRunning {
 }
 
 private func verifyService() {
-  let suite = "DDCVolumeKeysServiceVerification.\(UUID().uuidString)"
+  let suite = "DisplayVolumeKeysServiceVerification.\(UUID().uuidString)"
   let defaults = UserDefaults(suiteName: suite)!
   defaults.removePersistentDomain(forName: suite)
   defer { defaults.removePersistentDomain(forName: suite) }
@@ -202,8 +207,8 @@ verifyCommandRunner()
 verifyService()
 
 if failures == 0 {
-  print("All DDCVolumeKeys checks passed.")
+  print("All DisplayVolumeKeys checks passed.")
   exit(EXIT_SUCCESS)
 }
-print("\(failures) DDCVolumeKeys check(s) failed.")
+print("\(failures) DisplayVolumeKeys check(s) failed.")
 exit(EXIT_FAILURE)

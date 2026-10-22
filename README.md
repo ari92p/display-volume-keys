@@ -1,168 +1,185 @@
-# DDCVolumeKeys
+<h1>
+  DisplayVolumeKeys
+  <a href="https://github.com/ari92p/display-volume-keys/releases/latest">
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/ari92p/display-volume-keys?display_name=tag&style=for-the-badge&label=Download&logo=github">
+  </a>
+</h1>
 
-DDCVolumeKeys is a small native macOS menu bar app that routes the standard
-volume and mute media keys to the speakers of one compatible external display.
-It uses DDC (Display Data Channel) to control the display directly instead of
-changing the selected macOS audio output.
+**Make the volume keys on your Mac control the speakers of your external
+monitor.**
 
-Normal key presses change the volume by one step. Repeated presses accelerate
-up to four steps. If exactly one compatible display is not available, the app
-fails closed and leaves media-key handling to macOS.
+When a Mac sends audio to an external display over USB-C, DisplayPort,
+Thunderbolt or HDMI, the volume keys usually stop working: macOS shows a
+crossed-out speaker, and the volume can only be changed with the buttons on
+the monitor. DisplayVolumeKeys is a small menu bar app that fixes this. It
+sends the volume up, volume down and mute keys to the display over DDC/CI,
+the same channel the monitor's own menu uses.
 
-## Quick start
+It does only this one job, needs no configuration and runs entirely on your
+Mac.
 
-On an Apple Silicon Mac:
+## Installation with Homebrew
 
 ```sh
-brew install m1ddc
-./build.sh
-ditto dist/DDCVolumeKeys.app /Applications/DDCVolumeKeys.app
-open /Applications/DDCVolumeKeys.app
+brew install --cask ari92p/tap/display-volume-keys
 ```
 
-On first launch, allow DDCVolumeKeys under **System Settings → Privacy &
-Security → Accessibility**. The app then appears as `DDC` in the menu bar.
-It handles the media keys only when it finds exactly one external display whose
-volume can be read through DDC.
+This also installs [`m1ddc`](https://github.com/waydabber/m1ddc), which
+DisplayVolumeKeys uses to talk to the display. Then:
+
+1. Open DisplayVolumeKeys from the Applications folder.
+2. Allow DisplayVolumeKeys under **System Settings → Privacy & Security →
+   Accessibility** when macOS asks. This lets it receive the volume keys.
+
+`DDC` now appears in the menu bar. DisplayVolumeKeys starts automatically at
+login; turn this off with **Launch at Login** in its menu.
+
+Update with `brew upgrade --cask display-volume-keys`. The Accessibility
+permission stays in place across updates.
+
+DisplayVolumeKeys is signed with the project's own certificate but not
+notarized by Apple, which requires a paid developer account. The Homebrew cask
+therefore removes the download quarantine from the app, so macOS does not
+block the first start.
 
 ## Features
 
-- Automatically discovers volume-capable DDC displays
-- Filters internal and pseudo displays without DDC volume support
-- Supports volume up, volume down, and mute
-- Only intercepts keys while the DDC display is the active macOS output
-- Never changes the macOS audio output device
-- Runs as a lightweight menu bar agent
-- Can launch automatically at login
-- English interface with automatic German localization on German systems
-- Uses two-second timeouts for every `m1ddc` invocation
-- Stores no telemetry and makes no network requests
+- Volume up, volume down and mute go to the external display
+- Holding or repeating a key speeds up the change, up to four steps at a time
+- Becomes active only while the external display is the selected macOS sound
+  output; otherwise the keys keep working as usual
+- Never changes the macOS sound output device
+- Finds the display automatically, no settings needed
+- Stays inactive when it cannot tell which display to control, instead of
+  guessing
+- Starts at login, which can be turned off in the menu bar
+- English and German interface
+- No telemetry and no network access
 
 ## Requirements
 
-- Apple Silicon Mac
-- macOS 13 or later
-- [`m1ddc`](https://github.com/waydabber/m1ddc)
-- An external display whose audio controls work through DDC
+- A Mac with Apple silicon (M1 or newer)
+- macOS 13 Ventura or later
+- An external display with built-in speakers whose volume can be changed over
+  DDC/CI
+- [`m1ddc`](https://github.com/waydabber/m1ddc), installed automatically by
+  Homebrew
 
-Install `m1ddc` with Homebrew:
+To check whether your display supports this, run `m1ddc get volume` in
+Terminal. If it prints a number, DisplayVolumeKeys will work with it.
 
-```sh
-brew install m1ddc
-```
+## Installation from a GitHub release
 
-## Build
+1. Install `m1ddc` with `brew install m1ddc`.
+2. Download the ZIP from the latest
+   [release](https://github.com/ari92p/display-volume-keys/releases/latest)
+   and move `DisplayVolumeKeys.app` to the Applications folder.
+3. Open the app. macOS blocks the first start because the app is not
+   notarized: open **System Settings → Privacy & Security**, scroll down and
+   click **Open Anyway**. This is needed again after each manual update.
+4. Allow DisplayVolumeKeys under **System Settings → Privacy & Security →
+   Accessibility** when macOS asks.
 
-The project intentionally has one build entry point. It always runs the
-portable unit and fail-safe verification suite, then compiles a release binary,
-assembles the app bundle, and verifies its stable code signature. With a full
-Xcode installation it also runs the XCTest suite:
+## Troubleshooting
+
+- **The volume keys still show the crossed-out speaker:** check that
+  DisplayVolumeKeys is enabled under **Privacy & Security → Accessibility** and
+  that the external display is the selected sound output.
+- **No DDC display found:** run `m1ddc display list` and `m1ddc get volume` in
+  Terminal. Some monitors turn DDC/CI off by default; look for a "DDC/CI"
+  option in the monitor's on-screen menu. The built-in HDMI port of some Macs
+  and many docks and adapters do not pass DDC through; a direct USB-C or
+  DisplayPort connection usually works.
+- **Multiple DDC displays found:** with more than one compatible display,
+  DisplayVolumeKeys intentionally stays inactive rather than guessing.
+- **Another app reacts to the volume keys too:** turn off volume key handling
+  in MonitorControl, BetterDisplay or similar utilities so that only one app
+  handles the keys.
+- **`m1ddc` is installed somewhere else:** DisplayVolumeKeys looks in
+  `/opt/homebrew/bin` and `/usr/local/bin`. Set a different path with
+  `defaults write io.github.ari92p.DisplayVolumeKeys M1DDCPath /path/to/m1ddc`
+  and restart the app.
+
+**About DisplayVolumeKeys** in the menu bar shows a diagnostic report you can
+copy into an issue.
+
+## How it compares
+
+[MonitorControl](https://github.com/MonitorControl/MonitorControl),
+[BetterDisplay](https://github.com/waydabber/BetterDisplay) and
+[Lunar](https://lunar.fyi) can also control monitor volume, alongside
+brightness, contrast and much more. DisplayVolumeKeys is for people who only
+want the volume keys to work: it has no windows, no settings and no
+brightness control.
+
+## Building from source
+
+Swift 6 is required. With a full Xcode installation, the build also runs the
+XCTest suite.
 
 ```sh
 ./build.sh
 ```
 
-The app is written to `dist/DDCVolumeKeys.app`.
+The app is written to `dist/DisplayVolumeKeys.app`. The build always runs the
+portable unit and fail-safe checks, then compiles a release binary, assembles
+the app bundle and signs it.
 
-To use a stable signing identity, pass its Keychain name:
-
-```sh
-DDC_VOLUME_KEYS_SIGN_IDENTITY="Apple Development: Your Name" ./build.sh
-```
-
-If no identity is passed, the build uses the local `DDCVolumeKeys Local
-Signing` identity. This keeps the macOS Accessibility authorization attached
-to the app across local rebuilds.
-
-GitHub Actions explicitly uses ad-hoc signing (`DDC_VOLUME_KEYS_SIGN_IDENTITY=-`)
-for its `DDCVolumeKeys-CI-test-build` artifact. These artifacts validate the build
-without uploading a private signing key. They are not updates for the locally
-signed app; `install.sh` rejects them to preserve its signing identity.
-
-If `m1ddc` is installed somewhere other than `/opt/homebrew/bin/m1ddc` or
-`/usr/local/bin/m1ddc`, configure its path before launching the app:
+macOS ties the Accessibility permission to the app's signing certificate. To
+keep the permission across rebuilds, create a local signing certificate once:
 
 ```sh
-defaults write de.mlemors.DDCVolumeKeys M1DDCPath /path/to/m1ddc
+scripts/create-signing-identity.sh ~/DisplayVolumeKeys-signing
 ```
 
-Restart DDCVolumeKeys after changing this setting.
+`build.sh` then uses it automatically. For an ad-hoc signed test build, run
+`DISPLAY_VOLUME_KEYS_SIGN_IDENTITY=- ./build.sh`, or pass the name of any other
+signing identity in that variable.
 
-## Install
-
-Copy the built app to `/Applications` and launch it:
-
-```sh
-ditto dist/DDCVolumeKeys.app /Applications/DDCVolumeKeys.app
-open /Applications/DDCVolumeKeys.app
-```
-
-For local rebuilds, use the installer script instead of replacing the app in
-Finder. It quits the running copy, resets the obsolete Accessibility record,
-installs the new build, and launches it:
-
-```sh
-./install.sh
-```
-
-The reset is intentionally limited to DDCVolumeKeys. macOS still requires the
-user to approve the newly installed build once in **System Settings → Privacy &
-Security → Accessibility**.
-
-On first launch, enable DDCVolumeKeys under **System Settings → Privacy &
-Security → Accessibility**.
-
-If migrating from an older ad-hoc build, the installer resets that old
-Accessibility record once:
-
-```sh
-./install.sh
-```
-
-Then launch the newly built app and enable it again. Stable signing prevents
-this from recurring during normal development.
-
-If MonitorControl continues to manage brightness, disable its volume-key
-handling so only one app intercepts those keys.
-
-## Troubleshooting
-
-- **No response from the volume keys:** make sure Accessibility permission is
-  enabled and that no other utility, such as MonitorControl, is also handling
-  the volume keys.
-- **No DDC display found:** confirm that `m1ddc display list` works in Terminal
-  and that the display exposes a readable audio volume through DDC.
-- **Multiple DDC displays found:** the app intentionally stays inactive rather
-  than guessing which display should receive the command.
-- **Commands time out:** DDCVolumeKeys limits every `m1ddc` invocation to two
-  seconds and fails safely when the display does not respond.
+To replace the installed app with a local build, run `./install.sh`. It quits
+the running app, installs the new build to `/Applications`, keeps the previous
+version for recovery and starts the app again. It refuses ad-hoc builds so
+that the installed app keeps its signing identity.
 
 ## Project layout
 
 ```text
-Sources/DDCVolumeKeys/              Core DDC and command logic
-Sources/DDCVolumeKeysApp/           AppKit menu bar application
-Sources/DDCVolumeKeysVerification/  Executable verification suite
-Tests/DDCVolumeKeysTests/            XCTest unit and service tests
-Resources/                          Metadata, app icon, and localizations
-.github/workflows/                  Continuous integration
-build.sh                            Build, verify, package, and sign
+Sources/DisplayVolumeKeys/              Core DDC and command logic
+Sources/DisplayVolumeKeysApp/           AppKit menu bar application
+Sources/DisplayVolumeKeysVerification/  Executable verification suite
+Tests/DisplayVolumeKeysTests/           XCTest unit and service tests
+Resources/                              Metadata, app icon and localizations
+scripts/                                Signing and release helpers
+build.sh                                Build, verify, package and sign
+install.sh                              Install a local build
 ```
 
 ## Privacy and security
 
-DDCVolumeKeys runs entirely on the local Mac. It does not collect telemetry,
-contact remote services, or change the selected macOS audio device. The local
-diagnostic report shows display names but does not expose stable display
-identifiers. Display identifiers are not persisted by the app.
+DisplayVolumeKeys runs entirely on the local Mac. It does not collect
+telemetry, does not make network requests and does not change the selected
+sound output. The diagnostic report shows display names but no stable display
+identifiers, and display identifiers are not stored.
 
-Please report vulnerabilities according to [SECURITY.md](SECURITY.md).
+Please report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+
+## Support
+
+If this app is useful to you, you can buy me a coffee:
+
+<p>
+  <a href="https://ko-fi.com/ari92p"><img alt="Support me on Ko-fi" src="https://ko-fi.com/img/githubbutton_sm.svg" height="36"></a>
+  <a href="https://buymeacoffee.com/ari92p"><img alt="Buy Me a Coffee" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="36"></a>
+</p>
 
 ## Contributing
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) before
 opening a pull request.
 
-## License
+## Credits and license
 
-DDCVolumeKeys is available under the [MIT License](LICENSE).
+DisplayVolumeKeys uses [`m1ddc`](https://github.com/waydabber/m1ddc) by
+waydabber (MIT License), which is installed separately and not bundled.
+
+DisplayVolumeKeys is available under the [MIT License](LICENSE).

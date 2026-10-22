@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 
-import DDCVolumeKeysCore
+import DisplayVolumeKeysCore
 
 final class M1DDCOutputParserTests: XCTestCase {
   func testParsesDisplayListAndStableUUIDs() {
@@ -50,7 +50,7 @@ final class SettingsStoreTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    suite = "DDCVolumeKeysTests.\(UUID().uuidString)"
+    suite = "DisplayVolumeKeysTests.\(UUID().uuidString)"
     defaults = UserDefaults(suiteName: suite)!
     defaults.removePersistentDomain(forName: suite)
   }
@@ -88,6 +88,16 @@ final class SettingsStoreTests: XCTestCase {
     XCTAssertEqual(settings.runtimeStatus, "connected")
     XCTAssertEqual(settings.runtimeDisplayCount, 1)
     XCTAssertEqual(settings.lastKnownVolume, 24)
+  }
+
+  func testRecordsLaunchAtLoginConfigurationOnce() {
+    let settings = SettingsStore(defaults: defaults)
+
+    XCTAssertFalse(settings.launchAtLoginConfigured)
+
+    settings.recordLaunchAtLoginConfigured()
+
+    XCTAssertTrue(SettingsStore(defaults: defaults).launchAtLoginConfigured)
   }
 }
 
@@ -374,7 +384,7 @@ final class DDCServiceTests: XCTestCase {
   }
 
   private func makeDefaults() -> (defaults: UserDefaults, suite: String) {
-    let suite = "DDCVolumeKeysServiceTests.\(UUID().uuidString)"
+    let suite = "DisplayVolumeKeysServiceTests.\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suite)!
     defaults.removePersistentDomain(forName: suite)
     return (defaults, suite)

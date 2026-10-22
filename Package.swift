@@ -3,33 +3,33 @@
 import PackageDescription
 
 let package = Package(
-  name: "DDCVolumeKeys",
+  name: "DisplayVolumeKeys",
   platforms: [
     .macOS(.v13)
   ],
   products: [
-    .executable(name: "DDCVolumeKeys", targets: ["DDCVolumeKeys"]),
+    .executable(name: "DisplayVolumeKeys", targets: ["DisplayVolumeKeys"]),
     .executable(
-      name: "DDCVolumeKeysVerification",
-      targets: ["DDCVolumeKeysVerification"]
+      name: "DisplayVolumeKeysVerification",
+      targets: ["DisplayVolumeKeysVerification"]
     ),
   ],
   targets: [
-    .target(name: "DDCVolumeKeysCore", path: "Sources/DDCVolumeKeys"),
+    .target(name: "DisplayVolumeKeysCore", path: "Sources/DisplayVolumeKeys"),
     .executableTarget(
-      name: "DDCVolumeKeys",
-      dependencies: ["DDCVolumeKeysCore"],
-      path: "Sources/DDCVolumeKeysApp"
+      name: "DisplayVolumeKeys",
+      dependencies: ["DisplayVolumeKeysCore"],
+      path: "Sources/DisplayVolumeKeysApp"
     ),
     .executableTarget(
-      name: "DDCVolumeKeysVerification",
-      dependencies: ["DDCVolumeKeysCore"],
-      path: "Sources/DDCVolumeKeysVerification"
+      name: "DisplayVolumeKeysVerification",
+      dependencies: ["DisplayVolumeKeysCore"],
+      path: "Sources/DisplayVolumeKeysVerification"
     ),
     .testTarget(
-      name: "DDCVolumeKeysTests",
-      dependencies: ["DDCVolumeKeysCore"],
-      path: "Tests/DDCVolumeKeysTests"
+      name: "DisplayVolumeKeysTests",
+      dependencies: ["DisplayVolumeKeysCore"],
+      path: "Tests/DisplayVolumeKeysTests"
     ),
   ],
   swiftLanguageModes: [.v5]

@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import DDCVolumeKeysCore
+import DisplayVolumeKeysCore
 import ServiceManagement
 
 private func localized(_ key: String) -> String {
@@ -30,7 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
   )
 
   private var statusItem: NSStatusItem!
-  private let headerItem = NSMenuItem(title: "DDCVolumeKeys", action: nil, keyEquivalent: "")
+  private let headerItem = NSMenuItem(title: "DisplayVolumeKeys", action: nil, keyEquivalent: "")
   private let launchAtLoginMenuItem = NSMenuItem(
     title: localized("menu.launchAtLogin"),
     action: #selector(toggleLaunchAtLogin),
@@ -44,6 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.accessory)
+    enableLaunchAtLoginOnFirstLaunch()
     configureMainMenu()
     configureMenuBar()
     configureStateUpdates()
@@ -68,16 +69,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     } else {
       NSApp.applicationIconImage = NSImage(
         systemSymbolName: "speaker.wave.2.circle.fill",
-        accessibilityDescription: "DDCVolumeKeys"
+        accessibilityDescription: "DisplayVolumeKeys"
       )
     }
     statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-    configureStaticStatusIcon(description: "DDCVolumeKeys")
+    configureStaticStatusIcon(description: "DisplayVolumeKeys")
 
     let version =
       Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
       ?? "0.3.0"
-    headerItem.title = "DDCVolumeKeys \(version)"
+    headerItem.title = "DisplayVolumeKeys \(version)"
     headerItem.isEnabled = false
 
     let menu = NSMenu()
@@ -113,7 +114,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let mainMenu = NSMenu()
 
     let appMenuItem = NSMenuItem()
-    let appMenu = NSMenu(title: "DDCVolumeKeys")
+    let appMenu = NSMenu(title: "DisplayVolumeKeys")
     let quitItem = NSMenuItem(
       title: localized("menu.quit"),
       action: #selector(quit),
@@ -245,6 +246,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
   }
 
+  private func enableLaunchAtLoginOnFirstLaunch() {
+    guard !settings.launchAtLoginConfigured else { return }
+    settings.recordLaunchAtLoginConfigured()
+    if SMAppService.mainApp.status == .notRegistered {
+      try? SMAppService.mainApp.register()
+    }
+  }
+
   private func updateLaunchAtLoginMenuItem() {
     switch SMAppService.mainApp.status {
     case .enabled:
@@ -269,7 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     } catch {
       NSApp.activate(ignoringOtherApps: true)
       let alert = NSAlert()
-      alert.messageText = "DDCVolumeKeys"
+      alert.messageText = "DisplayVolumeKeys"
       alert.informativeText = localized(
         "alert.launchAtLoginFailed",
         error.localizedDescription
@@ -287,7 +296,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let none = localized("diagnostics.none")
     let selected = ddcService.activeDisplay?.menuTitle ?? none
     let report = """
-      DDCVolumeKeys \(version)
+      DisplayVolumeKeys \(version)
       \(localized("diagnostics.runtime")) \(settings.runtimeStatus ?? localized("diagnostics.unknown"))
       \(localized("diagnostics.displays")) \(currentDisplays.count) (\(displays.isEmpty ? none : displays))
       \(localized("diagnostics.selected")) \(selected)
@@ -320,7 +329,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
   private func makeDiagnosticsSelectableInAboutPanel() {
     guard
       let window = NSApp.keyWindow
-        ?? NSApp.windows.reversed().first(where: { $0.isVisible && $0.title.contains("DDC") }),
+        ?? NSApp.windows.reversed().first(where: {
+          $0.isVisible && $0.title.contains("DisplayVolumeKeys")
+        }),
       let contentView = window.contentView
     else { return }
 

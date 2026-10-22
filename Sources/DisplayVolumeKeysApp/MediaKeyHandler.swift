@@ -1,6 +1,6 @@
 import AppKit
 import ApplicationServices
-import DDCVolumeKeysCore
+import DisplayVolumeKeysCore
 
 final class MediaKeyHandler {
   private let shouldHandle: () -> Bool

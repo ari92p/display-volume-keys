@@ -1,4 +1,4 @@
-"menu.about" = "Über DDCVolumeKeys";
+"menu.about" = "Über DisplayVolumeKeys";
 "menu.approveLaunchAtLogin" = "Anmeldestart genehmigen …";
 "menu.copy" = "Kopieren";
 "menu.edit" = "Bearbeiten";
@@ -6,8 +6,8 @@
 "menu.quit" = "Beenden";
 "menu.selectAll" = "Alles auswählen";
 
-"status.accessibilityRequired" = "Bedienungshilfen für DDCVolumeKeys erforderlich";
-"status.active" = "DDCVolumeKeys aktiv";
+"status.accessibilityRequired" = "Bedienungshilfen für DisplayVolumeKeys erforderlich";
+"status.active" = "DisplayVolumeKeys aktiv";
 "status.checking" = "DDC-Monitor wird geprüft";
 
 "error.communicationFailed" = "DDC-Kommunikation fehlgeschlagen";

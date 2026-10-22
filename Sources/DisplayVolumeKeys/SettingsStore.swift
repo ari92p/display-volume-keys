@@ -7,6 +7,7 @@ public final class SettingsStore {
     static let runtimeDisplayCount = "RuntimeDisplayCount"
     static let runtimeLastUpdate = "RuntimeLastUpdate"
     static let lastKnownVolume = "LastKnownVolume"
+    static let launchAtLoginConfigured = "LaunchAtLoginConfigured"
   }
 
   private let defaults: UserDefaults
@@ -64,5 +65,15 @@ public final class SettingsStore {
 
   public func recordLastKnownVolume(_ volume: Int) {
     defaults.set(volume, forKey: Key.lastKnownVolume)
+  }
+
+  /// Launch at login is turned on automatically only once, so a later choice
+  /// in the menu is kept.
+  public var launchAtLoginConfigured: Bool {
+    defaults.bool(forKey: Key.launchAtLoginConfigured)
+  }
+
+  public func recordLaunchAtLoginConfigured() {
+    defaults.set(true, forKey: Key.launchAtLoginConfigured)
   }
 }

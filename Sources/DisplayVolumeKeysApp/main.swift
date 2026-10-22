@@ -1,5 +1,5 @@
 import AppKit
-import DDCVolumeKeysCore
+import DisplayVolumeKeysCore
 
 let application = NSApplication.shared
 let delegate = AppDelegate()

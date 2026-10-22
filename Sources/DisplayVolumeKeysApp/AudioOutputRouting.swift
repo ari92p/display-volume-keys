@@ -1,5 +1,5 @@
 import CoreAudio
-import DDCVolumeKeysCore
+import DisplayVolumeKeysCore
 import Foundation
 
 /// Identifies whether the macOS default output is the display controlled by DDC.

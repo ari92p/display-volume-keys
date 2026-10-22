@@ -40,7 +40,7 @@ public final class DDCService {
 
   private let settings: SettingsStore
   private let runner: CommandRunning
-  private let queue = DispatchQueue(label: "de.mlemors.DDCVolumeKeys.ddc", qos: .userInitiated)
+  private let queue = DispatchQueue(label: "io.github.ari92p.DisplayVolumeKeys.ddc", qos: .userInitiated)
   private let stateLock = NSLock()
   private let changeLock = NSLock()
   private let safeMaximumVolume = 60

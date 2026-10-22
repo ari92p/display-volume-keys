@@ -3,7 +3,7 @@
 set -euo pipefail
 
 readonly ROOT="${0:A:h}"
-readonly PRODUCT="DDCVolumeKeys"
+readonly PRODUCT="DisplayVolumeKeys"
 readonly APP="$ROOT/dist/$PRODUCT.app"
 readonly ICON_SOURCE="$ROOT/Resources/AppIcon.png"
 readonly ICON_FILE="$ROOT/Resources/AppIcon.icns"
@@ -68,21 +68,25 @@ for localization in "$ROOT"/Resources/*.lproj(/); do
   cp -R "$localization" "$APP/Contents/Resources/"
 done
 
-signing_identity="${DDC_VOLUME_KEYS_SIGN_IDENTITY:-}"
+# The self-signed release certificate is not trusted by macOS, so look it up
+# without -v. Its stable leaf hash keeps the Accessibility approval.
+signing_identity="${DISPLAY_VOLUME_KEYS_SIGN_IDENTITY:-}"
 if [[ -z "$signing_identity" ]]; then
   signing_identity="$({
-    /usr/bin/security find-identity -v -p codesigning 2>/dev/null || true
-  } | /usr/bin/awk '/DDCVolumeKeys Local Signing/ { print $2; exit }')"
+    /usr/bin/security find-identity -p codesigning 2>/dev/null || true
+  } | /usr/bin/awk '/"DisplayVolumeKeys Signing"/ { print $2; exit }')"
 fi
 
 if [[ -z "$signing_identity" ]]; then
   echo "No stable code-signing identity found." >&2
-  echo "Set DDC_VOLUME_KEYS_SIGN_IDENTITY or run the local signing setup." >&2
+  echo "Run scripts/create-signing-identity.sh, set DISPLAY_VOLUME_KEYS_SIGN_IDENTITY," >&2
+  echo "or use DISPLAY_VOLUME_KEYS_SIGN_IDENTITY=- for an ad-hoc test build." >&2
   exit 1
 fi
 
 echo "==> Signing with: $signing_identity"
-/usr/bin/codesign --force --timestamp=none --sign "$signing_identity" "$APP"
+/usr/bin/codesign --force --options runtime --timestamp=none \
+  --sign "$signing_identity" "$APP"
 
 /usr/bin/codesign --verify --strict "$APP"
 echo "==> Built $APP"
